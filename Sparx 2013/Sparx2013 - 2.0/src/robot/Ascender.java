@@ -44,7 +44,6 @@ public class Ascender extends SubSystem{
                     moveHornsUp = true;
                     toggle = false;
                     moveHorns = false;
-                    sleep(1000);
                 }else if(moveHorns && !toggle && buttonDefault){
                     moveHornsUp = false;
                     toggle = true;
