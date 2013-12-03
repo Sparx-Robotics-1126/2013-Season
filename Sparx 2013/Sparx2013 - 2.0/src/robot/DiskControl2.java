@@ -30,27 +30,28 @@ public class DiskControl2 extends SubSystem{
     private static final int HIGH_GOAL_FRONT_SHOOTER_SPEED = 6000;
     private static final int HIGH_GOAL_BACK_SHOOTER_SPEED = 7700;//7000;
     private static final int PYRAMID_GOAL_SHOOTING_SPEED = 0;
-    
-    private static boolean rollerReverseMode;
-    private static boolean autoShooterInPosition = false;
-    private static boolean autoFloorPickupInPosition = false;
-    private static boolean shootDisk = false;
+    private boolean autoShooterInPosition = false;
+    private boolean autoFloorPickupInPosition = false;
+    private boolean shootDisk = false;
+    private boolean floorMode = false;
+    private boolean shootingMode = false;
     private static int mode;
-    private static boolean lowShooting = false;
-    private static boolean middleShooting = false;
-    private static boolean highShooting = true;
-    private static boolean pyramidShooting = false;
-    private static boolean frontOfPyramid = false;
-    private static boolean rollOfPyramid = false;
-    private static boolean inbouerReverseMode = false;
-    private static double shootingSpeed = 0.0;
-    private static boolean RPMShooting = true;
-    private static int speedError = 0;
-    private static boolean notPunched = true;
-    private static boolean readyToFire = false;
-    private static boolean setForAuto = false;
-    private static boolean manualPunchy = false;
-    private static boolean firstTilt = false;
+    private boolean offMode = true;
+    private boolean lowShooting = false;
+    private boolean middleShooting = false;
+    private boolean highShooting = true;
+    private boolean pyramidShooting = false;
+    private boolean frontOfPyramid = false;
+    private boolean inbounderMode = false;
+    private boolean rollerReverseMode = false;
+    private double shootingSpeed = 0.0;
+    private boolean RPMShooting = true;
+    private int speedError = 0;
+    private boolean notPunched = true;
+    private boolean readyToFire = false;
+    private boolean setForAuto = false;
+    private boolean manualPunchy = false;
+    private boolean firstTilt = false;
     public DriverJoysticks testJoy;
     
     private DiskControl2(){
