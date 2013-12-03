@@ -33,16 +33,12 @@ public class DiskControl2 extends SubSystem{
     private boolean autoShooterInPosition = false;
     private boolean autoFloorPickupInPosition = false;
     private boolean shootDisk = false;
-    private boolean floorMode = false;
-    private boolean shootingMode = false;
     private static int mode;
-    private boolean offMode = true;
     private boolean lowShooting = false;
     private boolean middleShooting = false;
     private boolean highShooting = true;
     private boolean pyramidShooting = false;
     private boolean frontOfPyramid = false;
-    private boolean inbounderMode = false;
     private boolean rollerReverseMode = false;
     private double shootingSpeed = 0.0;
     private boolean RPMShooting = true;
