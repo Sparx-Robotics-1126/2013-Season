@@ -58,7 +58,7 @@ public class DriverJoysticks {
         return rightDriverJoy.getRawAxis(IO.ATTACK3_Y_AXIS);
     }
     
-    public boolean getClimb(){
+    public boolean getClimbing(){
         return rightDriverJoy.getRawButton(IO.ATTACK3_TRIGGER);
     }
     

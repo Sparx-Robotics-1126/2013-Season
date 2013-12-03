@@ -5,8 +5,10 @@ public class Ascender extends SubSystem{
     private IO master;
     private DriverJoysticks driver;
     private boolean toggle = true;
-    private boolean currentPosition = false;
+    private boolean moveHornsUp = false;
     private boolean moveHorns = false;
+    private boolean buttonDefault = false;
+    private boolean climberToggle = false;
     //Declare here
     
     private Ascender(){
@@ -27,27 +29,28 @@ public class Ascender extends SubSystem{
         while (true){
            sleep(20);
             //Joysticks
+           climberToggle = driver.getClimbing();
            
-           
-            if(driver.getClimbing() && getLocalMode() == SubSystem.TELEOP){
+            if(climberToggle && getLocalMode() == SubSystem.TELEOP){
                 moveHorns = true;
+                buttonDefault = false;
             }
             
-            if(moveHorns && toggle){//THIS IS A TOGGLE
-                currentPosition = true;
-                toggle = false;
-                moveHorns = false;
-                master.setClimbClaws(currentPosition);
-                sleep(1000);
-            }else if(moveHorns && !toggle){
-                currentPosition = false;
-                toggle = true;
-                moveHorns = false;
-                master.setClimbClaws(currentPosition);
-                sleep(1000);
+            if(!climberToggle){
+                buttonDefault = true;
             }
             
-            master.setClimbClaws(currentPosition);
+                if(moveHorns && toggle && buttonDefault){//THIS IS A TOGGLE
+                    moveHornsUp = true;
+                    toggle = false;
+                    moveHorns = false;
+                }else if(moveHorns && !toggle && buttonDefault){
+                    moveHornsUp = false;
+                    toggle = true;
+                    moveHorns = false;
+                }
+            
+            master.setClimbClaws(moveHornsUp);
             
             if (master.getClimbingMode()){//Checks to make sure in climbing mode and not driving mode
             }
@@ -55,7 +58,7 @@ public class Ascender extends SubSystem{
     }
     
     public void autoSetHorns(boolean value){
-        currentPosition = value;
+        moveHornsUp = value;
     }
    ; 
 }
