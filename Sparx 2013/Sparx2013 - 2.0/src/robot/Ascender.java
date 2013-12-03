@@ -57,5 +57,5 @@ public class Ascender extends SubSystem{
     public void autoSetHorns(boolean value){
         currentPosition = value;
     }
-    
+   ; 
 }
