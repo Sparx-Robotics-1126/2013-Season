@@ -425,12 +425,12 @@ public class Autonomous extends SubSystem{
     
     private void shooterEnable(){
         print("ShooterEnabled");
-        diskControl2.autoSetPickup(false, true, false, false);
+        diskControl2.autoSetPickup(Mode.SHOOTER);
     }
     
     private void shooterDisable(){
         print("ShooterDisabled");
-        diskControl2.autoSetPickup(true, false, false, false);
+        diskControl2.autoSetPickup(Mode.FLOOR);
     }
     
     private void shooterFire(){
@@ -440,13 +440,13 @@ public class Autonomous extends SubSystem{
     
     private void acquisitionsOn(){
         print("acquisitionsON");
-        diskControl2.autoSetPickup(true, false, false, false);
+        diskControl2.autoSetPickup(Mode.FLOOR);
         
     }
     
     private void acquisitionsOff(){
         print("acquisitionsOFF");
-        diskControl2.autoSetPickup(false, false, false, false);
+        diskControl2.autoSetPickup(Mode.OFF);
     }
     
     private void ascendersMoveHorns(int value){

@@ -9,7 +9,7 @@ package robot;
  * @author Connor
  */
 public class DiskControl2 extends SubSystem{
-    
+        
     private static DiskControl2 disccontrol;
     private static IO master;
     private static OperatorJoystick2 joystick;
@@ -31,19 +31,18 @@ public class DiskControl2 extends SubSystem{
     private static final int HIGH_GOAL_BACK_SHOOTER_SPEED = 7700;//7000;
     private static final int PYRAMID_GOAL_SHOOTING_SPEED = 0;
     
+    private static boolean rollerReverseMode;
     private static boolean autoShooterInPosition = false;
     private static boolean autoFloorPickupInPosition = false;
     private static boolean shootDisk = false;
-    private static boolean floorMode = false;
-    private static boolean shootingMode = false;
-    private static boolean offMode = true;
+    private static int mode;
     private static boolean lowShooting = false;
     private static boolean middleShooting = false;
     private static boolean highShooting = true;
     private static boolean pyramidShooting = false;
     private static boolean frontOfPyramid = false;
-    private static boolean inbounderMode = false;
-    private static boolean rollerReverseMode = false;
+    private static boolean rollOfPyramid = false;
+    private static boolean inbouerReverseMode = false;
     private static double shootingSpeed = 0.0;
     private static boolean RPMShooting = true;
     private static int speedError = 0;
@@ -86,29 +85,17 @@ public class DiskControl2 extends SubSystem{
             if(!master.getDiagnosticsMode()){
                 if(getLocalMode() == SubSystem.TELEOP){
                     if(joystick.getRampButton()){
-                        floorMode = true;
-                        shootingMode = false;
-                        inbounderMode = false;
-                        offMode = false;
+                        mode = Mode.FLOOR;
                         speedError = 0;
                     }else if(joystick.getShootingButton()){
-                        floorMode = false;
-                        shootingMode = true;
-                        inbounderMode = false;
-                        offMode = false;
+                        mode = Mode.SHOOTER;
                         RPMShooting = true;
                         speedError = 0;
                     }else if(joystick.getInbounderButton()){
-                        floorMode = false;
-                        shootingMode = false;
-                        inbounderMode = true;
-                        offMode = false;
+                        mode = Mode.INBOUNDER;
                         speedError = 0;
                     }else if(joystick.getOffButton()){
-                        floorMode = false;
-                        shootingMode = false;
-                        inbounderMode = false;
-                        offMode = true;
+                        mode = Mode.OFF;
                         speedError = 0;
                     }
         
@@ -187,28 +174,28 @@ public class DiskControl2 extends SubSystem{
                     setRamp(RAMP_UP);
                 }else if(manualPunchy){
                     diskAdjust();
-                }else if(floorMode && !shootingMode && !inbounderMode && !offMode){
+                }else if(mode == Mode.FLOOR){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setTowerAngle(LOW_GOAL);//HOME POSITION
                     setTowerPostion(PICKUP_POSITION, false);
                     setRamp(RAMP_DOWN);
                     setIntakeMotor(1);
                     master.rainbowStrip();
-                }else if(!floorMode && shootingMode && !inbounderMode && !offMode){
+                }else if(mode == Mode.SHOOTER){
                     master.oneColorStripFlashing(0, 127, 0);
                     master.setLEDStrobeSpeed(200);
                     setShootingPresets();
                     setTowerPostion(SHOOTING_POSITION, true);
                     setRamp(RAMP_UP);
                     setIntakeMotor(0);
-                }else if(!floorMode && !shootingMode && inbounderMode && !offMode){
+                }else if(mode == Mode.INBOUNDER){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setTowerAngle(MIDDLE_GOAL);
                     setTowerPostion(SHOOTING_POSITION, false);
                     setRamp(RAMP_UP);
                     setIntakeMotor(0);
                     master.rainbowStrip();
-                }else if(!floorMode && !shootingMode && !inbounderMode && offMode){
+                }else if(mode == Mode.OFF){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setIntakeMotor(0);
                     setTowerAngle(LOW_GOAL);
@@ -224,12 +211,12 @@ public class DiskControl2 extends SubSystem{
                 }
                 
                 //Punchy
-                if(!shootingMode){
+                if(mode != Mode.SHOOTER){
                     master.setPunchyTop(PUNCHY_DOWN);
                 }
 
         
-                if(shootDisk && shootingMode){//NEED TO ADD UP TO SPEED METHOD
+                if(shootDisk && mode == Mode.SHOOTER){//NEED TO ADD UP TO SPEED METHOD
                     diskAdjust();
                     master.setKicker(true);
                     pidSleep(100);
@@ -402,11 +389,8 @@ public class DiskControl2 extends SubSystem{
 //        
 //    }
     
-    public void autoSetPickup(boolean floor, boolean shoot, boolean inbounder, boolean off){
-        floorMode = floor;
-        shootingMode = shoot;
-        inbounderMode = inbounder;
-        offMode = off;
+    public void autoSetPickup(int newMode){
+        mode = newMode;
     }
     
     private void setColorStrip(int red, int green, int blue, int LEDnum){
