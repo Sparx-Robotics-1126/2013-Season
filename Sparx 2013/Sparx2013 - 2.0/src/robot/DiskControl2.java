@@ -1,18 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package robot;
 
 /**
  *
  * @author Connor
+ * @author Justin
  */
 public class DiskControl2 extends SubSystem{
     
-    private static DiskControl2 disccontrol;
-    private static IO master;
-    private static OperatorJoystick2 joystick;
     private static final boolean RAMP_UP = true;
     private static final boolean RAMP_DOWN = false;
     private static final boolean SHOOTING_POSITION = true;
@@ -26,33 +20,48 @@ public class DiskControl2 extends SubSystem{
     private static final int PYRAMID_GOAL = 4;
     private static final int LOW_GOAL_SHOOTER_SPEED = 2000;
     private static final int MIDDLE_GOAL_FRONT_SHOOTER_SPEED = 5350;
-    private static final int MIDDLE_GOAL_BACK_SHOOTER_SPEED = 6150;//6650
-    private static final int HIGH_GOAL_FRONT_SHOOTER_SPEED = 6000;
-    private static final int HIGH_GOAL_BACK_SHOOTER_SPEED = 7700;//7000;
-    private static final int PYRAMID_GOAL_SHOOTING_SPEED = 0;
+    private static final int MIDDLE_GOAL_BACK_SHOOTER_SPEED  = 6150;//6650
+    private static final int HIGH_GOAL_FRONT_SHOOTER_SPEED   = 6000;
+    private static final int HIGH_GOAL_BACK_SHOOTER_SPEED    = 7700;//7000;
+    private static final int PYRAMID_GOAL_SHOOTING_SPEED     = 0;
+    
+    private  IO master;
+    private  OperatorJoystick2 joystick;
+    private  DriverJoysticks testJoy;
+    
     private boolean autoShooterInPosition = false;
     private boolean autoFloorPickupInPosition = false;
     private boolean shootDisk = false;
-    private boolean floorMode = false;
-    private boolean shootingMode = false;
-    private boolean offMode = true;
-    private boolean lowShooting = false;
-    private boolean middleShooting = false;
-    private boolean highShooting = true;
+    
+    /**
+     * This is the shooting mode of the robot.
+     * <br>
+     * Default: ShooterMode.HIGH
+     */
+    private int shootingMode = ShooterMode.HIGH;
     private boolean pyramidShooting = false;
     private boolean frontOfPyramid = false;
-    private boolean inbounderMode = false;
     private boolean rollerReverseMode = false;
-    private double shootingSpeed = 0.0;
     private boolean RPMShooting = true;
-    private int speedError = 0;
     private boolean notPunched = true;
     private boolean readyToFire = false;
     private boolean setForAuto = false;
     private boolean manualPunchy = false;
     private boolean firstTilt = false;
-    public DriverJoysticks testJoy;
     
+    /**
+     * This is the operating mode of the acquisition.
+     * <br>
+     * Default: OperatingMode.OFF
+     */
+    private int operatingMode;
+    private int speedError = 0;
+    private double shootingSpeed = 0.0;
+    
+    /**
+     * This is the private constructor.  This is only called once when 
+     * retrieving the first instance of the DiskControler
+     */
     private DiskControl2(){
          super("disccontrol");
          joystick = OperatorJoystick2.getInstance();
@@ -60,6 +69,17 @@ public class DiskControl2 extends SubSystem{
          master = IO.getInstance();
     }
     
+    /**
+     * This is the private instance of the singleton
+     */
+    private static DiskControl2 disccontrol;
+    
+    /**
+     * Use this method to get the instance of {@link robot.DiskControl2}.  If it
+     * is not created already then it creates an instance and returns it.
+     * 
+     * @return the instance.
+     */
     public static DiskControl2 getInstance(){
          if (disccontrol == null){
              disccontrol = new DiskControl2();
@@ -85,29 +105,17 @@ public class DiskControl2 extends SubSystem{
             if(!master.getDiagnosticsMode()){
                 if(getLocalMode() == SubSystem.TELEOP){
                     if(joystick.getRampButton()){
-                        floorMode = true;
-                        shootingMode = false;
-                        inbounderMode = false;
-                        offMode = false;
+                        operatingMode = OperatingMode.FLOOR;
                         speedError = 0;
                     }else if(joystick.getShootingButton()){
-                        floorMode = false;
-                        shootingMode = true;
-                        inbounderMode = false;
-                        offMode = false;
+                        operatingMode = OperatingMode.SHOOTER;
                         RPMShooting = true;
                         speedError = 0;
                     }else if(joystick.getInbounderButton()){
-                        floorMode = false;
-                        shootingMode = false;
-                        inbounderMode = true;
-                        offMode = false;
+                        operatingMode = OperatingMode.INBOUNDER;
                         speedError = 0;
                     }else if(joystick.getOffButton()){
-                        floorMode = false;
-                        shootingMode = false;
-                        inbounderMode = false;
-                        offMode = true;
+                        operatingMode = OperatingMode.OFF;
                         speedError = 0;
                     }
         
@@ -117,33 +125,23 @@ public class DiskControl2 extends SubSystem{
                     setShootingMethod(RPMShooting);//SmartDashboard
         
                     if(joystick.highFrontGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = false;
-                        highShooting = true;
+                        shootingMode = ShooterMode.HIGH;
                         frontOfPyramid = true;
                         speedError = 0;
                     }else if(joystick.highBackGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = false;
-                        highShooting = true;
+                        shootingMode = ShooterMode.HIGH;
                         frontOfPyramid = false;
                         speedError = 0;
                     }else if(joystick.middleFrontGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = true;
-                        highShooting = false;
+                        shootingMode = ShooterMode.MIDDLE;
                         frontOfPyramid = true;
                         speedError = 0;
                     }else if(joystick.middleBackGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = true;
-                        highShooting = false;
+                        shootingMode = ShooterMode.MIDDLE;
                         frontOfPyramid = false;
                         speedError = 0;
                     }else if(joystick.lowGoalPreset()){
-                        lowShooting = true;
-                        middleShooting = false;
-                        highShooting = false;
+                        shootingMode = ShooterMode.LOW;
                         speedError = 0;
                     }
         
@@ -186,28 +184,28 @@ public class DiskControl2 extends SubSystem{
                     setRamp(RAMP_UP);
                 }else if(manualPunchy){
                     diskAdjust();
-                }else if(floorMode && !shootingMode && !inbounderMode && !offMode){
+                }else if(operatingMode == OperatingMode.FLOOR){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setTowerAngle(LOW_GOAL);//HOME POSITION
                     setTowerPostion(PICKUP_POSITION, false);
                     setRamp(RAMP_DOWN);
                     setIntakeMotor(1);
                     master.rainbowStrip();
-                }else if(!floorMode && shootingMode && !inbounderMode && !offMode){
+                }else if(operatingMode == OperatingMode.SHOOTER){
                     master.oneColorStripFlashing(0, 127, 0);
                     master.setLEDStrobeSpeed(200);
                     setShootingPresets();
                     setTowerPostion(SHOOTING_POSITION, true);
                     setRamp(RAMP_UP);
                     setIntakeMotor(0);
-                }else if(!floorMode && !shootingMode && inbounderMode && !offMode){
+                }else if(operatingMode == OperatingMode.INBOUNDER){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setTowerAngle(MIDDLE_GOAL);
                     setTowerPostion(SHOOTING_POSITION, false);
                     setRamp(RAMP_UP);
                     setIntakeMotor(0);
                     master.rainbowStrip();
-                }else if(!floorMode && !shootingMode && !inbounderMode && offMode){
+                }else if(operatingMode == OperatingMode.OFF){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setIntakeMotor(0);
                     setTowerAngle(LOW_GOAL);
@@ -223,12 +221,12 @@ public class DiskControl2 extends SubSystem{
                 }
                 
                 //Punchy
-                if(!shootingMode){
+                if(operatingMode != OperatingMode.SHOOTER){
                     master.setPunchyTop(PUNCHY_DOWN);
                 }
 
         
-                if(shootDisk && shootingMode){//NEED TO ADD UP TO SPEED METHOD
+                if(shootDisk && operatingMode == OperatingMode.SHOOTER){//NEED TO ADD UP TO SPEED METHOD
                     diskAdjust();
                     master.setKicker(true);
                     pidSleep(100);
@@ -248,7 +246,7 @@ public class DiskControl2 extends SubSystem{
     private void setRamp(boolean rampPosition){
         master.setPickUpMode(rampPosition, true);
     }
-//    
+
     private void setTowerAngle(int points){
         switch(points){
             case LOW_GOAL://HOME POSTIONS
@@ -291,7 +289,7 @@ public class DiskControl2 extends SubSystem{
             firstTilt = true;
         }else if(master.getPlateLocation() && notPunched){
             notPunched = false;
-//            diskAdjust();
+            //diskAdjust();
         }else if(position == SHOOTING_POSITION && master.getPlateLocation() && shooting){
             master.setElevations(0.2);
         }else{
@@ -338,13 +336,13 @@ public class DiskControl2 extends SubSystem{
             }
             
         master.calculateShootingSpeed();
-//        print(""+speedError);
+        // print(""+speedError);
         print("Wanted Speed " + (wantedSpeed + speedError) + " Real Speed " + master.getShooterSpeed());
         master.setPIDShooting((wantedSpeed + speedError));
         shootingSpeed = master.getPIDShooting();
         master.setShooter(shootingSpeed);
         
-        //For the smartDashboard
+        // For the smartDashboard
         if((wantedSpeed+speedError) > master.getShooterSpeed() - 50 && (wantedSpeed+speedError) < master.getShooterSpeed() + 50){
             readyToFire = true;
         }else{
@@ -393,19 +391,8 @@ public class DiskControl2 extends SubSystem{
         }
     }
     
-//    public void setServoPosition(double position){
-//        master.setCameraServo(position);
-//    }
-    
-//    public void setInbounder(boolean position){
-//        
-//    }
-    
-    public void autoSetPickup(boolean floor, boolean shoot, boolean inbounder, boolean off){
-        floorMode = floor;
-        shootingMode = shoot;
-        inbounderMode = inbounder;
-        offMode = off;
+    public void autoSetPickup(int newMode){
+        operatingMode = newMode;
     }
     
     private void setColorStrip(int red, int green, int blue, int LEDnum){
@@ -424,10 +411,8 @@ public class DiskControl2 extends SubSystem{
         return autoShooterInPosition;
     }
     
-    public void autoPresets(boolean lowGoal, boolean middleGoal, boolean highGoal, boolean frontOfPyramid, int offset){
-        lowShooting = lowGoal;
-        middleShooting = middleGoal;
-        highShooting = highGoal;
+    public void autoPresets(int shootingMode, boolean frontOfPyramid, int offset){
+        this.shootingMode = shootingMode;
         this.frontOfPyramid = frontOfPyramid;
         speedError = offset;
     }
@@ -436,35 +421,49 @@ public class DiskControl2 extends SubSystem{
         return true;
     }
     
+    /**
+     * Whoever wrote this method forgot to comment it....
+     * <br>
+     * I'm assuming that it moves the shooter to the presets.
+     */
     private void setShootingPresets(){
-        if(lowShooting && !middleShooting && !highShooting){//LOW
-            setTowerAngle(LOW_GOAL);
-            setShootingSpeed(LOW_GOAL, frontOfPyramid);
-            setSmartString("Low Gaol");
-        }else if(!lowShooting && middleShooting && !highShooting){//MIDDLE
-            if(frontOfPyramid){
-                setTowerAngle(PYRAMID_GOAL);
-                setShootingSpeed(MIDDLE_GOAL, true);
-                setSmartString("Middle Goal, Front");
-            }else{
+        switch(shootingMode){
+            case ShooterMode.LOW:
+                setTowerAngle(LOW_GOAL);
+                setShootingSpeed(LOW_GOAL, frontOfPyramid);
+                setSmartString("Low Gaol");
+                break;
+                
+            case ShooterMode.MIDDLE:
+                if (frontOfPyramid) {
+                    setTowerAngle(PYRAMID_GOAL);
+                    setShootingSpeed(MIDDLE_GOAL, true);
+                    setSmartString("Middle Goal, Front");
+                } else {
+                    setTowerAngle(MIDDLE_GOAL);
+                    setShootingSpeed(MIDDLE_GOAL, false);
+                    setSmartString("Middle Goal, Back");
+                }
+                break;
+                
+            case ShooterMode.HIGH:
+                if (frontOfPyramid) {
+                    setTowerAngle(PYRAMID_GOAL);
+                    setShootingSpeed(HIGH_GOAL, true);
+                    setSmartString("High Goal, Front");
+                } else {
+                    setTowerAngle(MIDDLE_GOAL);
+                    setShootingSpeed(HIGH_GOAL, false);
+                    setSmartString("High Goal, Back");
+                }
+                break;
+                
+            case ShooterMode.DEFAULT:
+            default:
                 setTowerAngle(MIDDLE_GOAL);
-                setShootingSpeed(MIDDLE_GOAL, false);
-                setSmartString("Middle Goal, Back");
-            }
-        }else if (!lowShooting && !middleShooting && highShooting){//HIGH
-            if(frontOfPyramid){
-                setTowerAngle(PYRAMID_GOAL);
-                setShootingSpeed(HIGH_GOAL, true);
-                setSmartString("High Goal, Front");
-            }else{
-                setTowerAngle(MIDDLE_GOAL);
-                setShootingSpeed(HIGH_GOAL, false);
-                setSmartString("High Goal, Back");
-            }
-        }else{
-            setTowerAngle(MIDDLE_GOAL);
-            setShootingSpeed(LOW_GOAL, true);
-            setSmartString("No preset selected");
+                setShootingSpeed(LOW_GOAL, true);
+                setSmartString("No preset selected");
+                break;
         }
     }
     

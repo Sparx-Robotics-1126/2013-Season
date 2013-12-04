@@ -13,7 +13,7 @@ public class Autonomous extends SubSystem{
     public static final int FIRST_OFFSET                    = 0;
     public static final int SECOND_OFFSET                   = 100;
     public static final int THIRD_OFFSET                    = 100;
-    public static final int CLIMBERS_UP                 = 0;
+    public static final int CLIMBERS_UP                     = 0;
     public static final int CLIMBERS_DOWN                   = 1;
 
     public static final boolean TURNING_LEFT                = false;
@@ -425,12 +425,12 @@ public class Autonomous extends SubSystem{
     
     private void shooterEnable(){
         print("ShooterEnabled");
-        diskControl2.autoSetPickup(false, true, false, false);
+        diskControl2.autoSetPickup(OperatingMode.SHOOTER);
     }
     
     private void shooterDisable(){
         print("ShooterDisabled");
-        diskControl2.autoSetPickup(true, false, false, false);
+        diskControl2.autoSetPickup(OperatingMode.FLOOR);
     }
     
     private void shooterFire(){
@@ -440,13 +440,13 @@ public class Autonomous extends SubSystem{
     
     private void acquisitionsOn(){
         print("acquisitionsON");
-        diskControl2.autoSetPickup(true, false, false, false);
+        diskControl2.autoSetPickup(OperatingMode.FLOOR);
         
     }
     
     private void acquisitionsOff(){
         print("acquisitionsOFF");
-        diskControl2.autoSetPickup(false, false, false, false);
+        diskControl2.autoSetPickup(OperatingMode.OFF);
     }
     
     private void ascendersMoveHorns(int value){
@@ -498,16 +498,16 @@ public class Autonomous extends SubSystem{
         }
         switch(goal){
             case LOWER_GOAL:
-                diskControl2.autoPresets(true, false, false, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.LOW, frontOfPyramidBoolean, offset);
                 break;
             case MIDDLE_GOAL:
-                diskControl2.autoPresets(false, true, false, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.MIDDLE, frontOfPyramidBoolean, offset);
                 break;
             case HIGH_GOAL:
-                diskControl2.autoPresets(false, false, true, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.HIGH, frontOfPyramidBoolean, offset);
                 break;
             default:
-                diskControl2.autoPresets(false, false, false, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.DEFAULT, frontOfPyramidBoolean, offset);
                 break;
         }
     }
