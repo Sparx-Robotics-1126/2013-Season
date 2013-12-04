@@ -1,18 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package robot;
 
 /**
  *
  * @author Connor
+ * @author Justin
  */
 public class DiskControl2 extends SubSystem{
-        
-    private static DiskControl2 disccontrol;
-    private static IO master;
-    private static OperatorJoystick2 joystick;
+    
     private static final boolean RAMP_UP = true;
     private static final boolean RAMP_DOWN = false;
     private static final boolean SHOOTING_POSITION = true;
@@ -26,29 +20,34 @@ public class DiskControl2 extends SubSystem{
     private static final int PYRAMID_GOAL = 4;
     private static final int LOW_GOAL_SHOOTER_SPEED = 2000;
     private static final int MIDDLE_GOAL_FRONT_SHOOTER_SPEED = 5350;
-    private static final int MIDDLE_GOAL_BACK_SHOOTER_SPEED = 6150;//6650
-    private static final int HIGH_GOAL_FRONT_SHOOTER_SPEED = 6000;
-    private static final int HIGH_GOAL_BACK_SHOOTER_SPEED = 7700;//7000;
-    private static final int PYRAMID_GOAL_SHOOTING_SPEED = 0;
+    private static final int MIDDLE_GOAL_BACK_SHOOTER_SPEED  = 6150;//6650
+    private static final int HIGH_GOAL_FRONT_SHOOTER_SPEED   = 6000;
+    private static final int HIGH_GOAL_BACK_SHOOTER_SPEED    = 7700;//7000;
+    private static final int PYRAMID_GOAL_SHOOTING_SPEED     = 0;
+    
+    private  IO master;
+    private  OperatorJoystick2 joystick;
+    private  DriverJoysticks testJoy;
+    
     private boolean autoShooterInPosition = false;
     private boolean autoFloorPickupInPosition = false;
     private boolean shootDisk = false;
-    private static int mode;
     private boolean lowShooting = false;
     private boolean middleShooting = false;
     private boolean highShooting = true;
     private boolean pyramidShooting = false;
     private boolean frontOfPyramid = false;
     private boolean rollerReverseMode = false;
-    private double shootingSpeed = 0.0;
     private boolean RPMShooting = true;
-    private int speedError = 0;
     private boolean notPunched = true;
     private boolean readyToFire = false;
     private boolean setForAuto = false;
     private boolean manualPunchy = false;
     private boolean firstTilt = false;
-    public DriverJoysticks testJoy;
+    
+    private int operatingMode;
+    private int speedError = 0;
+    private double shootingSpeed = 0.0;
     
     private DiskControl2(){
          super("disccontrol");
@@ -57,6 +56,17 @@ public class DiskControl2 extends SubSystem{
          master = IO.getInstance();
     }
     
+    /**
+     * This is the private instance of the singleton
+     */
+    private static DiskControl2 disccontrol;
+    
+    /**
+     * Use this method to get the instance of {@link robot.DiskControl2}.  If it
+     * is not created already then it creates an instance and returns it.
+     * 
+     * @return the instance.
+     */
     public static DiskControl2 getInstance(){
          if (disccontrol == null){
              disccontrol = new DiskControl2();
@@ -82,17 +92,17 @@ public class DiskControl2 extends SubSystem{
             if(!master.getDiagnosticsMode()){
                 if(getLocalMode() == SubSystem.TELEOP){
                     if(joystick.getRampButton()){
-                        mode = Mode.FLOOR;
+                        operatingMode = OperatingMode.FLOOR;
                         speedError = 0;
                     }else if(joystick.getShootingButton()){
-                        mode = Mode.SHOOTER;
+                        operatingMode = OperatingMode.SHOOTER;
                         RPMShooting = true;
                         speedError = 0;
                     }else if(joystick.getInbounderButton()){
-                        mode = Mode.INBOUNDER;
+                        operatingMode = OperatingMode.INBOUNDER;
                         speedError = 0;
                     }else if(joystick.getOffButton()){
-                        mode = Mode.OFF;
+                        operatingMode = OperatingMode.OFF;
                         speedError = 0;
                     }
         
@@ -171,28 +181,28 @@ public class DiskControl2 extends SubSystem{
                     setRamp(RAMP_UP);
                 }else if(manualPunchy){
                     diskAdjust();
-                }else if(mode == Mode.FLOOR){
+                }else if(operatingMode == OperatingMode.FLOOR){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setTowerAngle(LOW_GOAL);//HOME POSITION
                     setTowerPostion(PICKUP_POSITION, false);
                     setRamp(RAMP_DOWN);
                     setIntakeMotor(1);
                     master.rainbowStrip();
-                }else if(mode == Mode.SHOOTER){
+                }else if(operatingMode == OperatingMode.SHOOTER){
                     master.oneColorStripFlashing(0, 127, 0);
                     master.setLEDStrobeSpeed(200);
                     setShootingPresets();
                     setTowerPostion(SHOOTING_POSITION, true);
                     setRamp(RAMP_UP);
                     setIntakeMotor(0);
-                }else if(mode == Mode.INBOUNDER){
+                }else if(operatingMode == OperatingMode.INBOUNDER){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setTowerAngle(MIDDLE_GOAL);
                     setTowerPostion(SHOOTING_POSITION, false);
                     setRamp(RAMP_UP);
                     setIntakeMotor(0);
                     master.rainbowStrip();
-                }else if(mode == Mode.OFF){
+                }else if(operatingMode == OperatingMode.OFF){
                     setShootingSpeed(STOP_SHOOTER, false);
                     setIntakeMotor(0);
                     setTowerAngle(LOW_GOAL);
@@ -208,12 +218,12 @@ public class DiskControl2 extends SubSystem{
                 }
                 
                 //Punchy
-                if(mode != Mode.SHOOTER){
+                if(operatingMode != OperatingMode.SHOOTER){
                     master.setPunchyTop(PUNCHY_DOWN);
                 }
 
         
-                if(shootDisk && mode == Mode.SHOOTER){//NEED TO ADD UP TO SPEED METHOD
+                if(shootDisk && operatingMode == OperatingMode.SHOOTER){//NEED TO ADD UP TO SPEED METHOD
                     diskAdjust();
                     master.setKicker(true);
                     pidSleep(100);
@@ -233,7 +243,7 @@ public class DiskControl2 extends SubSystem{
     private void setRamp(boolean rampPosition){
         master.setPickUpMode(rampPosition, true);
     }
-//    
+
     private void setTowerAngle(int points){
         switch(points){
             case LOW_GOAL://HOME POSTIONS
@@ -276,7 +286,7 @@ public class DiskControl2 extends SubSystem{
             firstTilt = true;
         }else if(master.getPlateLocation() && notPunched){
             notPunched = false;
-//            diskAdjust();
+            //diskAdjust();
         }else if(position == SHOOTING_POSITION && master.getPlateLocation() && shooting){
             master.setElevations(0.2);
         }else{
@@ -323,13 +333,13 @@ public class DiskControl2 extends SubSystem{
             }
             
         master.calculateShootingSpeed();
-//        print(""+speedError);
+        // print(""+speedError);
         print("Wanted Speed " + (wantedSpeed + speedError) + " Real Speed " + master.getShooterSpeed());
         master.setPIDShooting((wantedSpeed + speedError));
         shootingSpeed = master.getPIDShooting();
         master.setShooter(shootingSpeed);
         
-        //For the smartDashboard
+        // For the smartDashboard
         if((wantedSpeed+speedError) > master.getShooterSpeed() - 50 && (wantedSpeed+speedError) < master.getShooterSpeed() + 50){
             readyToFire = true;
         }else{
@@ -378,16 +388,8 @@ public class DiskControl2 extends SubSystem{
         }
     }
     
-//    public void setServoPosition(double position){
-//        master.setCameraServo(position);
-//    }
-    
-//    public void setInbounder(boolean position){
-//        
-//    }
-    
     public void autoSetPickup(int newMode){
-        mode = newMode;
+        operatingMode = newMode;
     }
     
     private void setColorStrip(int red, int green, int blue, int LEDnum){

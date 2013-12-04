@@ -8,6 +8,6 @@ package robot;
  *
  * @author Alex
  */
-public class Mode {
+public class OperatingMode {
     public static final int INBOUNDER = 3, FLOOR = 1, SHOOTER =2, OFF = 0;
 }
