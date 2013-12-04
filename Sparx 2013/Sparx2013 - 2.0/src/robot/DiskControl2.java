@@ -32,6 +32,12 @@ public class DiskControl2 extends SubSystem{
     private boolean autoShooterInPosition = false;
     private boolean autoFloorPickupInPosition = false;
     private boolean shootDisk = false;
+    
+    /**
+     * This is the shooting mode of the robot.
+     * <br>
+     * Default: ShooterMode.HIGH
+     */
     private int shootingMode = ShooterMode.HIGH;
     private boolean pyramidShooting = false;
     private boolean frontOfPyramid = false;
@@ -43,10 +49,19 @@ public class DiskControl2 extends SubSystem{
     private boolean manualPunchy = false;
     private boolean firstTilt = false;
     
+    /**
+     * This is the operating mode of the acquisition.
+     * <br>
+     * Default: OperatingMode.OFF
+     */
     private int operatingMode;
     private int speedError = 0;
     private double shootingSpeed = 0.0;
     
+    /**
+     * This is the private constructor.  This is only called once when 
+     * retrieving the first instance of the DiskControler
+     */
     private DiskControl2(){
          super("disccontrol");
          joystick = OperatorJoystick2.getInstance();
@@ -406,6 +421,11 @@ public class DiskControl2 extends SubSystem{
         return true;
     }
     
+    /**
+     * Whoever wrote this method forgot to comment it....
+     * <br>
+     * I'm assuming that it moves the shooter to the presets.
+     */
     private void setShootingPresets(){
         switch(shootingMode){
             case ShooterMode.LOW:

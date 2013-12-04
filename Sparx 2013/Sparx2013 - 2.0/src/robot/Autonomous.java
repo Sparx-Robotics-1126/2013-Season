@@ -13,7 +13,7 @@ public class Autonomous extends SubSystem{
     public static final int FIRST_OFFSET                    = 0;
     public static final int SECOND_OFFSET                   = 100;
     public static final int THIRD_OFFSET                    = 100;
-    public static final int CLIMBERS_UP                 = 0;
+    public static final int CLIMBERS_UP                     = 0;
     public static final int CLIMBERS_DOWN                   = 1;
 
     public static final boolean TURNING_LEFT                = false;
