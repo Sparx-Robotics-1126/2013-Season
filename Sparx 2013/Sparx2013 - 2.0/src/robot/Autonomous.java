@@ -498,16 +498,16 @@ public class Autonomous extends SubSystem{
         }
         switch(goal){
             case LOWER_GOAL:
-                diskControl2.autoPresets(true, false, false, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.LOW, frontOfPyramidBoolean, offset);
                 break;
             case MIDDLE_GOAL:
-                diskControl2.autoPresets(false, true, false, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.MIDDLE, frontOfPyramidBoolean, offset);
                 break;
             case HIGH_GOAL:
-                diskControl2.autoPresets(false, false, true, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.HIGH, frontOfPyramidBoolean, offset);
                 break;
             default:
-                diskControl2.autoPresets(false, false, false, frontOfPyramidBoolean, offset);
+                diskControl2.autoPresets(ShooterMode.DEFAULT, frontOfPyramidBoolean, offset);
                 break;
         }
     }

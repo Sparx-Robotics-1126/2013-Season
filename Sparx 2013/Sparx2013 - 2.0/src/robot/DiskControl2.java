@@ -32,9 +32,7 @@ public class DiskControl2 extends SubSystem{
     private boolean autoShooterInPosition = false;
     private boolean autoFloorPickupInPosition = false;
     private boolean shootDisk = false;
-    private boolean lowShooting = false;
-    private boolean middleShooting = false;
-    private boolean highShooting = true;
+    private int shootingMode = ShooterMode.HIGH;
     private boolean pyramidShooting = false;
     private boolean frontOfPyramid = false;
     private boolean rollerReverseMode = false;
@@ -112,33 +110,23 @@ public class DiskControl2 extends SubSystem{
                     setShootingMethod(RPMShooting);//SmartDashboard
         
                     if(joystick.highFrontGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = false;
-                        highShooting = true;
+                        shootingMode = ShooterMode.HIGH;
                         frontOfPyramid = true;
                         speedError = 0;
                     }else if(joystick.highBackGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = false;
-                        highShooting = true;
+                        shootingMode = ShooterMode.HIGH;
                         frontOfPyramid = false;
                         speedError = 0;
                     }else if(joystick.middleFrontGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = true;
-                        highShooting = false;
+                        shootingMode = ShooterMode.MIDDLE;
                         frontOfPyramid = true;
                         speedError = 0;
                     }else if(joystick.middleBackGoalPreset()){
-                        lowShooting = false;
-                        middleShooting = true;
-                        highShooting = false;
+                        shootingMode = ShooterMode.MIDDLE;
                         frontOfPyramid = false;
                         speedError = 0;
                     }else if(joystick.lowGoalPreset()){
-                        lowShooting = true;
-                        middleShooting = false;
-                        highShooting = false;
+                        shootingMode = ShooterMode.LOW;
                         speedError = 0;
                     }
         
@@ -408,10 +396,8 @@ public class DiskControl2 extends SubSystem{
         return autoShooterInPosition;
     }
     
-    public void autoPresets(boolean lowGoal, boolean middleGoal, boolean highGoal, boolean frontOfPyramid, int offset){
-        lowShooting = lowGoal;
-        middleShooting = middleGoal;
-        highShooting = highGoal;
+    public void autoPresets(int shootingMode, boolean frontOfPyramid, int offset){
+        this.shootingMode = shootingMode;
         this.frontOfPyramid = frontOfPyramid;
         speedError = offset;
     }
@@ -421,34 +407,43 @@ public class DiskControl2 extends SubSystem{
     }
     
     private void setShootingPresets(){
-        if(lowShooting && !middleShooting && !highShooting){//LOW
-            setTowerAngle(LOW_GOAL);
-            setShootingSpeed(LOW_GOAL, frontOfPyramid);
-            setSmartString("Low Gaol");
-        }else if(!lowShooting && middleShooting && !highShooting){//MIDDLE
-            if(frontOfPyramid){
-                setTowerAngle(PYRAMID_GOAL);
-                setShootingSpeed(MIDDLE_GOAL, true);
-                setSmartString("Middle Goal, Front");
-            }else{
+        switch(shootingMode){
+            case ShooterMode.LOW:
+                setTowerAngle(LOW_GOAL);
+                setShootingSpeed(LOW_GOAL, frontOfPyramid);
+                setSmartString("Low Gaol");
+                break;
+                
+            case ShooterMode.MIDDLE:
+                if (frontOfPyramid) {
+                    setTowerAngle(PYRAMID_GOAL);
+                    setShootingSpeed(MIDDLE_GOAL, true);
+                    setSmartString("Middle Goal, Front");
+                } else {
+                    setTowerAngle(MIDDLE_GOAL);
+                    setShootingSpeed(MIDDLE_GOAL, false);
+                    setSmartString("Middle Goal, Back");
+                }
+                break;
+                
+            case ShooterMode.HIGH:
+                if (frontOfPyramid) {
+                    setTowerAngle(PYRAMID_GOAL);
+                    setShootingSpeed(HIGH_GOAL, true);
+                    setSmartString("High Goal, Front");
+                } else {
+                    setTowerAngle(MIDDLE_GOAL);
+                    setShootingSpeed(HIGH_GOAL, false);
+                    setSmartString("High Goal, Back");
+                }
+                break;
+                
+            case ShooterMode.DEFAULT:
+            default:
                 setTowerAngle(MIDDLE_GOAL);
-                setShootingSpeed(MIDDLE_GOAL, false);
-                setSmartString("Middle Goal, Back");
-            }
-        }else if (!lowShooting && !middleShooting && highShooting){//HIGH
-            if(frontOfPyramid){
-                setTowerAngle(PYRAMID_GOAL);
-                setShootingSpeed(HIGH_GOAL, true);
-                setSmartString("High Goal, Front");
-            }else{
-                setTowerAngle(MIDDLE_GOAL);
-                setShootingSpeed(HIGH_GOAL, false);
-                setSmartString("High Goal, Back");
-            }
-        }else{
-            setTowerAngle(MIDDLE_GOAL);
-            setShootingSpeed(LOW_GOAL, true);
-            setSmartString("No preset selected");
+                setShootingSpeed(LOW_GOAL, true);
+                setSmartString("No preset selected");
+                break;
         }
     }
     
